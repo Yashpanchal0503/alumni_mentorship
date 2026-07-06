@@ -33,11 +33,30 @@ const allowedOrigins = isDevelopment
   ? ['http://localhost:5173', 'http://localhost:4173', 'http://localhost:3000']
   : [process.env.FRONTEND_URL || ''].filter(Boolean);
 
+// Log CORS configuration for debugging
+console.log('CORS Configuration:', {
+  environment: process.env.NODE_ENV || 'development',
+  isDevelopment,
+  allowedOrigins,
+  frontendUrlEnv: process.env.FRONTEND_URL || 'NOT SET'
+});
+
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (server-to-server, Postman, etc.)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // In production, if FRONTEND_URL is not set, allow all origins with a warning
+    if (!isDevelopment && allowedOrigins.length === 0) {
+      console.warn('⚠️  WARNING: FRONTEND_URL not set in production. Allowing all origins. Set FRONTEND_URL environment variable for security.');
+      return callback(null, true);
+    }
+    
+    console.error(`CORS blocked: ${origin} not in allowed origins:`, allowedOrigins);
     callback(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true,
