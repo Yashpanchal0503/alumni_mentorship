@@ -10,4 +10,4 @@ backend/dev.db-journal
 dist/
 frontend/dist/
 *.log
-.DEPLOYMENT_GUIDE.md
+DEPLOYMENT_GUIDE.md
