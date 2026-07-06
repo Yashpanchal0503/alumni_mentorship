@@ -5,7 +5,13 @@ import jwt from 'jsonwebtoken';
 import { AuthenticatedRequest } from '../middleware/auth.js';
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_alumni_mentorship_2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+const SECRET = JWT_SECRET as string;
 
 export async function register(req: AuthenticatedRequest, res: Response) {
   try {
@@ -47,13 +53,13 @@ export async function register(req: AuthenticatedRequest, res: Response) {
           skills: JSON.stringify([]),
           languages: JSON.stringify(['English']),
           linkedin: '',
-          photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face', // Default photo
+          photo: '', // Default — frontend uses SVG avatar fallback
           availability: JSON.stringify({ days: [], timeSlots: [] }),
         },
       });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, SECRET, { expiresIn: '7d' });
 
     res.status(201).json({
       token,
@@ -92,7 +98,7 @@ export async function login(req: AuthenticatedRequest, res: Response) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, SECRET, { expiresIn: '7d' });
 
     res.json({
       token,

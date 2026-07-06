@@ -1,6 +1,7 @@
 datasource db {
-  provider = "postgresql"
-  url  = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -64,7 +65,7 @@ model Post {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   content   String    // Markdown or text
-  category  String    // e.g., "Career", "Placements", "Resume", "Higher Studies", "Internship", "Startups", "Coding", "General"
+  category  String    // e.g., "Career", "Placements", "Resume", "Higher Studies", etc.
   tags      String    // JSON string array of tags (e.g. '["career", "placement"]')
   likes     Int       @default(0)
   createdAt DateTime  @default(now())

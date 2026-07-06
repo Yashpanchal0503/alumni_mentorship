@@ -11,6 +11,7 @@
     "prisma:generate": "npm run prisma:generate --prefix backend",
     "prisma:seed": "npm run prisma:seed --prefix backend",
     "prisma:migrate": "npm run prisma:migrate --prefix backend",
+    "prisma:push": "npm run prisma:push --prefix backend",
     "setup": "npm install && npm install --prefix backend && npm install --prefix frontend && npm run prisma:migrate && npm run prisma:seed"
   },
   "devDependencies": {

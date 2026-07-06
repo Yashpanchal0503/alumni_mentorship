@@ -11,7 +11,11 @@ const client_1 = require("@prisma/client");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma = new client_1.PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_alumni_mentorship_2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
+const SECRET = JWT_SECRET;
 async function register(req, res) {
     try {
         const { name, email, password, role } = req.body;
@@ -47,12 +51,12 @@ async function register(req, res) {
                     skills: JSON.stringify([]),
                     languages: JSON.stringify(['English']),
                     linkedin: '',
-                    photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face', // Default photo
+                    photo: '', // Default — frontend uses SVG avatar fallback
                     availability: JSON.stringify({ days: [], timeSlots: [] }),
                 },
             });
         }
-        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, SECRET, { expiresIn: '7d' });
         res.status(201).json({
             token,
             user: {
@@ -85,7 +89,7 @@ async function login(req, res) {
         if (!isMatch) {
             return res.status(400).json({ error: 'Invalid email or password' });
         }
-        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, SECRET, { expiresIn: '7d' });
         res.json({
             token,
             user: {

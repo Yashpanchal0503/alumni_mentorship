@@ -6,12 +6,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authenticateJWT = authenticateJWT;
 exports.authorizeRoles = authorizeRoles;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_alumni_mentorship_2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
+const SECRET = JWT_SECRET;
 function authenticateJWT(req, res, next) {
     const authHeader = req.headers.authorization;
     if (authHeader) {
         const token = authHeader.split(' ')[1]; // Bearer TOKEN
-        jsonwebtoken_1.default.verify(token, JWT_SECRET, (err, decoded) => {
+        jsonwebtoken_1.default.verify(token, SECRET, (err, decoded) => {
             if (err) {
                 return res.status(403).json({ error: 'Invalid token' });
             }

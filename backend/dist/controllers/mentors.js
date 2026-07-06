@@ -17,7 +17,7 @@ async function getMentors(req, res) {
             where.domain = { in: domains };
         }
         if (company) {
-            where.company = { contains: company };
+            where.company = { contains: company, mode: 'insensitive' };
         }
         if (experience) {
             // e.g. experience=0-5 or experience=6-10 or experience=10+
@@ -32,15 +32,11 @@ async function getMentors(req, res) {
                 where.experience = { gte: 11 };
             }
         }
-        // Filter by skills
+        // Filter by skills (stored as JSON string, use contains for substring matching)
         if (skills) {
             const skillsList = skills.split(',');
-            // SQLite search for JSON contains is easier with multiple OR contains, or a simple custom check.
-            // Since SQLite doesn't natively parse JSON arrays inside Prisma easily with "has",
-            // we can do a standard AND/OR search on the raw JSON string representation, or filter in-memory if needed.
-            // But let's build custom queries using OR on the raw skills string.
             where.OR = skillsList.map(skill => ({
-                skills: { contains: skill }
+                skills: { contains: skill, mode: 'insensitive' }
             }));
         }
         // Search query: search in name, company, designation, skills, domain
@@ -48,11 +44,11 @@ async function getMentors(req, res) {
             const searchStr = search;
             where.OR = [
                 ...(where.OR || []),
-                { user: { name: { contains: searchStr } } },
-                { company: { contains: searchStr } },
-                { designation: { contains: searchStr } },
-                { domain: { contains: searchStr } },
-                { skills: { contains: searchStr } }
+                { user: { name: { contains: searchStr, mode: 'insensitive' } } },
+                { company: { contains: searchStr, mode: 'insensitive' } },
+                { designation: { contains: searchStr, mode: 'insensitive' } },
+                { domain: { contains: searchStr, mode: 'insensitive' } },
+                { skills: { contains: searchStr, mode: 'insensitive' } }
             ];
         }
         const mentors = await prisma.mentor.findMany({

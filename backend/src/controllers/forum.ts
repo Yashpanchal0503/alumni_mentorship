@@ -17,9 +17,9 @@ export async function getPosts(req: Request, res: Response) {
     if (search) {
       const searchStr = search as string;
       where.OR = [
-        { title: { contains: searchStr } },
-        { content: { contains: searchStr } },
-        { tags: { contains: searchStr } },
+        { title: { contains: searchStr, mode: 'insensitive' } },
+        { content: { contains: searchStr, mode: 'insensitive' } },
+        { tags: { contains: searchStr, mode: 'insensitive' } },
       ];
     }
 

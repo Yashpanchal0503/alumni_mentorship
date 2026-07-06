@@ -19,9 +19,9 @@ async function getPosts(req, res) {
         if (search) {
             const searchStr = search;
             where.OR = [
-                { title: { contains: searchStr } },
-                { content: { contains: searchStr } },
-                { tags: { contains: searchStr } },
+                { title: { contains: searchStr, mode: 'insensitive' } },
+                { content: { contains: searchStr, mode: 'insensitive' } },
+                { tags: { contains: searchStr, mode: 'insensitive' } },
             ];
         }
         let orderBy = { createdAt: 'desc' }; // default: most recent

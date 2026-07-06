@@ -1,7 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_alumni_mentorship_2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+const SECRET = JWT_SECRET as string;
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -17,7 +23,7 @@ export function authenticateJWT(req: AuthenticatedRequest, res: Response, next: 
   if (authHeader) {
     const token = authHeader.split(' ')[1]; // Bearer TOKEN
 
-    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, SECRET, (err, decoded) => {
       if (err) {
         return res.status(403).json({ error: 'Invalid token' });
       }

@@ -18,7 +18,7 @@ export async function getMentors(req: Request, res: Response) {
     }
 
     if (company) {
-      where.company = { contains: company as string };
+      where.company = { contains: company as string, mode: 'insensitive' };
     }
 
     if (experience) {
@@ -33,15 +33,11 @@ export async function getMentors(req: Request, res: Response) {
       }
     }
 
-    // Filter by skills
+    // Filter by skills (stored as JSON string, use contains for substring matching)
     if (skills) {
       const skillsList = (skills as string).split(',');
-      // SQLite search for JSON contains is easier with multiple OR contains, or a simple custom check.
-      // Since SQLite doesn't natively parse JSON arrays inside Prisma easily with "has",
-      // we can do a standard AND/OR search on the raw JSON string representation, or filter in-memory if needed.
-      // But let's build custom queries using OR on the raw skills string.
       where.OR = skillsList.map(skill => ({
-        skills: { contains: skill }
+        skills: { contains: skill, mode: 'insensitive' as const }
       }));
     }
 
@@ -50,11 +46,11 @@ export async function getMentors(req: Request, res: Response) {
       const searchStr = search as string;
       where.OR = [
         ...(where.OR || []),
-        { user: { name: { contains: searchStr } } },
-        { company: { contains: searchStr } },
-        { designation: { contains: searchStr } },
-        { domain: { contains: searchStr } },
-        { skills: { contains: searchStr } }
+        { user: { name: { contains: searchStr, mode: 'insensitive' as const } } },
+        { company: { contains: searchStr, mode: 'insensitive' as const } },
+        { designation: { contains: searchStr, mode: 'insensitive' as const } },
+        { domain: { contains: searchStr, mode: 'insensitive' as const } },
+        { skills: { contains: searchStr, mode: 'insensitive' as const } }
       ];
     }
 
