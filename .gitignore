@@ -1,3 +1,12 @@
 node_modules/
 .env
+
+.env.local
+.env.production
+.env.development
 prisma/generated/
+backend/dev.db
+backend/dev.db-journal
+dist/
+frontend/dist/
+*.log
