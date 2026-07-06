@@ -1,0 +1,95 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  password      String
+  role          String         // "STUDENT", "MENTOR", "ADMIN"
+  photo         String?        // Profile image URL
+  createdAt     DateTime       @default(now())
+  
+  // Relations
+  mentorProfile Mentor?
+  bookings      Booking[]      @relation("StudentBookings")
+  posts         Post[]
+  comments      Comment[]
+  notifications Notification[]
+}
+
+model Mentor {
+  id           Int       @id @default(autoincrement())
+  userId       Int       @unique
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domain       String    // e.g. "Technology", "Finance", "Healthcare", "Creative Arts"
+  company      String
+  designation  String
+  experience   Int       // years of experience
+  bio          String
+  skills       String    // JSON string array of skills (e.g. '["React", "Node"]')
+  languages    String    // JSON string array of languages (e.g. '["English", "Spanish"]')
+  linkedin     String
+  photo        String    // Image URL or path
+  availability String    // JSON string representation of availability slots
+  
+  // Relations
+  bookings     Booking[] @relation("MentorBookings")
+}
+
+model Booking {
+  id          Int      @id @default(autoincrement())
+  studentId   Int
+  student     User     @relation("StudentBookings", fields: [studentId], references: [id], onDelete: Cascade)
+  mentorId    Int
+  mentor      Mentor   @relation("MentorBookings", fields: [mentorId], references: [id], onDelete: Cascade)
+  date        String   // YYYY-MM-DD
+  time        String   // HH:MM
+  duration    String   // e.g., "30 mins", "45 mins", "60 mins"
+  purpose     String
+  status      String   // "PENDING", "ACCEPTED", "REJECTED", "COMPLETED", "CANCELLED"
+  notes       String?  // Additional details or feedback
+  createdAt   DateTime @default(now())
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  content   String    // Markdown or text
+  category  String    // e.g., "Career", "Placements", "Resume", "Higher Studies", "Internship", "Startups", "Coding", "General"
+  tags      String    // JSON string array of tags (e.g. '["career", "placement"]')
+  likes     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  // Relations
+  comments  Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   String
+  type      String   // "BOOKING_REQUESTED", "BOOKING_ACCEPTED", "BOOKING_REJECTED", "NEW_REPLY", "MENTION"
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
