@@ -15,7 +15,6 @@
     "setup": "npm install && npm install --prefix backend && npm install --prefix frontend && npm run prisma:migrate && npm run prisma:seed"
   },
   "devDependencies": {
-    "@types/morgan": "^1.9.10",
     "concurrently": "^8.2.2"
   }
 }
